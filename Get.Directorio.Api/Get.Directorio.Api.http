@@ -1,6 +1,0 @@
-@Get.Directorio.Api_HostAddress = http://localhost:5207
-
-GET {{Get.Directorio.Api_HostAddress}}/weatherforecast/
-Accept: application/json
-
-###

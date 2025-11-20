@@ -9,13 +9,14 @@ namespace Get.Directorio.Core.Entities
     {
         public int Id { get; set; }
 
-        [Required] public string Nombre { get; set; } = null!;
-        [Required] public string ApellidoPaterno { get; set; } = null!;
+        public string Nombre { get; set; } = null!;
+        public string ApellidoPaterno { get; set; } = null!;
         public string? ApellidoMaterno { get; set; }
-        [Required] public string Identificacion { get; set; } = null!;
+        public string Identificacion { get; set; } = null!;
         public DateTime FechaRegistro { get; set; } = DateTime.UtcNow;
 
+        // Relación 1 - N
         public ICollection<Factura> Facturas { get; set; } = new List<Factura>();
-
     }
+
 }
