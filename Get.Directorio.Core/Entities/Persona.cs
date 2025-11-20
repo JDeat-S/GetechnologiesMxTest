@@ -1,0 +1,21 @@
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Text;
+
+namespace Get.Directorio.Core.Entities
+{
+    public class Persona
+    {
+        public int Id { get; set; }
+
+        [Required] public string Nombre { get; set; } = null!;
+        [Required] public string ApellidoPaterno { get; set; } = null!;
+        public string? ApellidoMaterno { get; set; }
+        [Required] public string Identificacion { get; set; } = null!;
+        public DateTime FechaRegistro { get; set; } = DateTime.UtcNow;
+
+        public ICollection<Factura> Facturas { get; set; } = new List<Factura>();
+
+    }
+}
