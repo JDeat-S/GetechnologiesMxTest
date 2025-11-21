@@ -1,15 +1,57 @@
-﻿using System.Windows;
+﻿using Get.Directorio.ClientWPF.Models;
+using System.Windows;
+using System.Windows.Controls;
 
 namespace WpfApp
 {
+
     public partial class MainWindow : Window
     {
         private readonly ApiClient _api;
 
+        private List<UsuarioFacturasDto> _personas = new();
         public MainWindow()
         {
-            InitializeComponent();
             _api = new ApiClient();
+            InitializeComponent();
+            CargarPersonasAsync();
+        }
+      
+
+        private async Task CargarPersonasAsync()
+        {
+            try
+            {
+                _personas = await _api.GetAsync<List<UsuarioFacturasDto>>("/api/personas");
+
+                // Tabla 1 → Usuarios
+                dgUsuarios.ItemsSource = _personas.Select(p => new
+                {
+                    id = p.PersonaId,
+                    nombre = p.Nombre,
+                    apellidoPaterno = p.ApellidoPaterno,
+                    identificacion = p.Identificacion
+                }).ToList();
+
+                // Tabla 2 → Usuarios + Facturas
+                dgUsuariosFacturas.ItemsSource = _personas.Select(p => new
+                {
+                    id = p.PersonaId,
+                    nombre = p.Nombre,
+                    facturasDescripcion = string.Join(", ", p.Facturas.Select(f => f.Concepto))
+                }).ToList();
+
+                // ComboBox para registrar facturas
+                cbPersonas.ItemsSource = _personas.Select(p => new
+                {
+                    personaId = p.PersonaId,
+                    nombreCompleto = $"{p.Nombre} {p.ApellidoPaterno}"
+                }).ToList();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error al cargar usuarios: " + ex.Message);
+            }
         }
 
         private bool ValidarCampos()
@@ -44,6 +86,67 @@ namespace WpfApp
         {
             ValidarCampos();
         }
+        private async void RegistrarFactura_Click(object sender, RoutedEventArgs e)
+        {
+            if (cbPersonas.SelectedValue == null)
+            {
+                MessageBox.Show("Seleccione un usuario.", "Advertencia");
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(txtDescripcionFactura.Text))
+            {
+                MessageBox.Show("Ingrese una descripción de factura.", "Advertencia");
+                return;
+            }
+
+            if (!decimal.TryParse(txtMontoFactura.Text, out decimal monto))
+            {
+                MessageBox.Show("Ingrese un monto válido.", "Error");
+                return;
+            }
+
+            var factura = new FacturaCreateDto
+            {
+                PersonaId = (int)cbPersonas.SelectedValue,
+                Concepto = txtDescripcionFactura.Text,
+                Monto = monto
+            };
+
+            await _api.PostAsync<FacturaCreateDto, object>("/api/facturas", factura);
+
+            MessageBox.Show("Factura registrada correctamente.", "Éxito");
+
+            // Limpiar campos
+            txtDescripcionFactura.Text = "";
+            txtMontoFactura.Text = "";
+        }
+        private void txtBuscarUsuarios_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            var text = txtBuscarUsuarios.Text.ToLower();
+            dgUsuarios.ItemsSource = _personas
+                .Where(p => p.Nombre.ToLower().Contains(text))
+                .Select(p => new
+                {
+                    personaId = p.PersonaId,
+                    nombre = p.Nombre,
+                    apellidoPaterno = p.ApellidoPaterno,
+                    identificacion = p.Identificacion
+                }).ToList();
+        }
+
+        private void txtBuscarFacturas_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            var text = txtBuscarFacturas.Text.ToLower();
+            dgUsuariosFacturas.ItemsSource = _personas
+                .Where(p => p.Nombre.ToLower().Contains(text))
+                .Select(p => new
+                {
+                    personaId = p.PersonaId,
+                    nombre = p.Nombre,
+                    facturasDescripcion = string.Join(", ", p.Facturas.Select(f => f.Concepto))
+                }).ToList();
+        }
 
         private async void Registrar_Click(object sender, RoutedEventArgs e)
         {
@@ -53,7 +156,7 @@ namespace WpfApp
                 return;
             }
 
-            var dto = new PersonaCreateDto
+            var dto = new PersonaDto
             {
                 Nombre = txtNombre.Text,
                 ApellidoPaterno = txtApellidoPaterno.Text,
@@ -63,7 +166,7 @@ namespace WpfApp
 
             try
             {
-                await _api.PostAsync<PersonaCreateDto, object>("/api/personas", dto);
+                await _api.PostAsync<PersonaDto, object>("/api/personas", dto);
                 MessageBox.Show("Usuario registrado correctamente.");
 
                 txtNombre.Text = "";
@@ -82,5 +185,4 @@ namespace WpfApp
         }
 
     }
-}
 }
