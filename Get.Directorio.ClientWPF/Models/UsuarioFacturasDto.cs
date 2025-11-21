@@ -2,7 +2,7 @@
 
 public class UsuarioFacturasDto
 {
-    public int PersonaId { get; set; }
+    public int id { get; set; }
     public string Nombre { get; set; }
     public string ApellidoPaterno { get; set; }
     public string Identificacion { get; set; }

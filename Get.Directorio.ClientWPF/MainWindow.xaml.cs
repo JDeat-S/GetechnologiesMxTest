@@ -27,7 +27,7 @@ namespace WpfApp
                 // Tabla 1 → Usuarios
                 dgUsuarios.ItemsSource = _personas.Select(p => new
                 {
-                    id = p.PersonaId,
+                    id = p.id,
                     nombre = p.Nombre,
                     apellidoPaterno = p.ApellidoPaterno,
                     identificacion = p.Identificacion
@@ -36,7 +36,7 @@ namespace WpfApp
                 // Tabla 2 → Usuarios + Facturas
                 dgUsuariosFacturas.ItemsSource = _personas.Select(p => new
                 {
-                    id = p.PersonaId,
+                    id = p.id,
                     nombre = p.Nombre,
                     facturasDescripcion = string.Join(", ", p.Facturas.Select(f => f.Concepto))
                 }).ToList();
@@ -44,7 +44,7 @@ namespace WpfApp
                 // ComboBox para registrar facturas
                 cbPersonas.ItemsSource = _personas.Select(p => new
                 {
-                    personaId = p.PersonaId,
+                    id = p.id,
                     nombreCompleto = $"{p.Nombre} {p.ApellidoPaterno}"
                 }).ToList();
             }
@@ -88,9 +88,35 @@ namespace WpfApp
         }
         private async void RegistrarFactura_Click(object sender, RoutedEventArgs e)
         {
-            if (cbPersonas.SelectedValue == null)
+            var selectedItem = cbPersonas.SelectedItem;
+
+            if (selectedItem == null)
             {
+                // La alerta es correcta si NADA está seleccionado.
                 MessageBox.Show("Seleccione un usuario.", "Advertencia");
+                return;
+            }
+            int personaId = 0;
+
+            try
+            {
+                if (cbPersonas.SelectedValue is int idValue)
+                {
+                    personaId = idValue;
+                }
+                else if (cbPersonas.SelectedValue is null)
+                {
+                    MessageBox.Show("Error al obtener el ID del usuario.", "Error de ID");
+                    return;
+                }
+                else
+                {
+                    personaId = Convert.ToInt32(cbPersonas.SelectedValue);
+                }
+            }
+            catch
+            {
+                MessageBox.Show("Error de formato de ID. Seleccione un usuario válido.", "Error");
                 return;
             }
 
@@ -120,6 +146,8 @@ namespace WpfApp
             // Limpiar campos
             txtDescripcionFactura.Text = "";
             txtMontoFactura.Text = "";
+            CargarPersonasAsync();
+
         }
         private void txtBuscarUsuarios_TextChanged(object sender, TextChangedEventArgs e)
         {
@@ -128,7 +156,7 @@ namespace WpfApp
                 .Where(p => p.Nombre.ToLower().Contains(text))
                 .Select(p => new
                 {
-                    personaId = p.PersonaId,
+                    personaId = p.id,
                     nombre = p.Nombre,
                     apellidoPaterno = p.ApellidoPaterno,
                     identificacion = p.Identificacion
@@ -142,7 +170,7 @@ namespace WpfApp
                 .Where(p => p.Nombre.ToLower().Contains(text))
                 .Select(p => new
                 {
-                    personaId = p.PersonaId,
+                    personaId = p.id,
                     nombre = p.Nombre,
                     facturasDescripcion = string.Join(", ", p.Facturas.Select(f => f.Concepto))
                 }).ToList();
@@ -177,6 +205,8 @@ namespace WpfApp
                 lblErrorNombre.Text = "";
                 lblErrorApellidoPaterno.Text = "";
                 lblErrorIdentificacion.Text = "";
+                CargarPersonasAsync();
+
             }
             catch (Exception ex)
             {
