@@ -35,6 +35,7 @@ namespace Get.Directorio.Api.Controllers
 
             return Ok(list);
         }
+       
 
         // GET api/facturas/5
         [HttpGet("{id}")]
