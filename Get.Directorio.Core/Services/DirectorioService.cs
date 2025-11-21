@@ -1,27 +1,53 @@
 ﻿using Get.Directorio.Core.Entities;
 using Get.Directorio.Core.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Get.Directorio.Core.Services
 {
     public class DirectorioService
     {
         private readonly IPersonaRepository _personaRepo;
-        public DirectorioService(IPersonaRepository personaRepo) { _personaRepo = personaRepo; }
 
-        public Task<Persona?> GetByIdAsync(int id) => _personaRepo.GetByIdAsync(id);
-        public Task<IEnumerable<Persona>> GetAllAsync() => _personaRepo.GetAllAsync();
-        public async Task<Persona> CreateAsync(Persona p)
+        public DirectorioService(IPersonaRepository personaRepo)
         {
-            // Validaciones adicionales aquí si quieres
-            return await _personaRepo.AddAsync(p);
+            _personaRepo = personaRepo;
         }
-        public Task UpdateAsync(Persona p) => _personaRepo.UpdateAsync(p);
-        public Task DeleteAsync(Persona p) => _personaRepo.DeleteAsync(p); // cascada eliminará facturas
-    }
 
+        public async Task<IEnumerable<Persona>> GetAllAsync()
+        {
+            var personas = await _personaRepo.GetAllAsync();
+
+            // Cargar facturas de cada persona
+            foreach (var p in personas)
+            {
+                p.Facturas = await _personaRepo.GetFacturasByPersonaIdAsync(p.Id);
+            }
+
+            return personas;
+        }
+
+        public async Task<Persona?> GetByIdAsync(int id)
+        {
+            var persona = await _personaRepo.GetByIdAsync(id);
+
+            if (persona == null)
+                return null;
+
+            // Cargar facturas para esa persona
+            persona.Facturas = await _personaRepo.GetFacturasByPersonaIdAsync(persona.Id);
+
+            return persona;
+        }
+
+        public async Task<Persona> CreateAsync(Persona entity)
+        {
+            await _personaRepo.AddAsync(entity);
+            return entity;
+        }
+
+
+        public async Task DeleteAsync(Persona entity)
+        {
+            await _personaRepo.DeleteAsync(entity);
+        }
+    }
 }

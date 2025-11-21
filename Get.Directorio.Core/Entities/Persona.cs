@@ -15,7 +15,6 @@ namespace Get.Directorio.Core.Entities
         public string Identificacion { get; set; } = null!;
         public DateTime FechaRegistro { get; set; } = DateTime.UtcNow;
 
-        // Relación 1 - N
         public ICollection<Factura> Facturas { get; set; } = new List<Factura>();
     }
 

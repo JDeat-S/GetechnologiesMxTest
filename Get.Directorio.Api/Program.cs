@@ -17,10 +17,9 @@ builder.Host.UseSerilog();
 builder.Services.AddDbContext<DirectorioDbContext>(options =>
     options.UseSqlite("Data Source=directorio.db"));
 
-// Repos (obligatorio)
 builder.Services.AddScoped<IPersonaRepository, PersonaRepository>();
-
-// Servicios (aquí estaba el error)
+builder.Services.AddScoped<IFacturaRepository, FacturaRepository>();
+builder.Services.AddScoped<VentasService>();
 builder.Services.AddScoped<DirectorioService>();
 
 builder.Services.AddControllers();

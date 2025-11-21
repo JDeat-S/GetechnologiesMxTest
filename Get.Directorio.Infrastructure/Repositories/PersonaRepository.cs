@@ -19,6 +19,13 @@ namespace Get.Directorio.Infrastructure.Repositories
             await _ctx.SaveChangesAsync();
             return entity;
         }
+        public async Task<List<Factura>> GetFacturasByPersonaIdAsync(int personaId)
+        {
+            return await _ctx.Facturas
+                .Where(f => f.PersonaId == personaId)
+                .ToListAsync();
+        }
+
 
         public async Task DeleteAsync(Persona entity)
         {

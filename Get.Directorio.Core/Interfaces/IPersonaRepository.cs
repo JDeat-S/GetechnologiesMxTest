@@ -8,6 +8,8 @@ namespace Get.Directorio.Core.Interfaces
     public interface IPersonaRepository : IRepository<Persona>
     {
         Task<Persona?> GetByIdentificacionAsync(string identificacion);
+        Task<List<Factura>> GetFacturasByPersonaIdAsync(int personaId);
+
     }
 
 }
