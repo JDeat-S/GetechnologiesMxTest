@@ -7,5 +7,7 @@ namespace Get.Directorio.Core.Interfaces
         Task<Factura> AddAsync(Factura entity);
         Task<IEnumerable<Factura>> GetAllAsync();
         Task<Factura?> GetByIdAsync(int id);
+        Task UpdateAsync(Factura factura);
+        Task DeleteAsync(Factura factura);
     }
 }

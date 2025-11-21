@@ -49,5 +49,6 @@ namespace Get.Directorio.Core.Services
         {
             await _personaRepo.DeleteAsync(entity);
         }
+
     }
 }

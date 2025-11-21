@@ -17,5 +17,15 @@ namespace Get.Directorio.Core.Services
         public Task<Factura?> GetByIdAsync(int id) => _facturaRepo.GetByIdAsync(id);
 
         public Task<Factura> CreateAsync(Factura factura) => _facturaRepo.AddAsync(factura);
+        public async Task UpdateAsync(Factura factura)
+        {
+            await _facturaRepo.UpdateAsync(factura);
+        }
+
+        public async Task DeleteAsync(Factura factura)
+        {
+            await _facturaRepo.DeleteAsync(factura);
+        }
+
     }
 }

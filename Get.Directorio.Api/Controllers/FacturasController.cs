@@ -91,5 +91,51 @@ namespace Get.Directorio.Api.Controllers
 
             return Ok(response);
         }
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Update(int id, [FromBody] FacturaUpdateDto dto)
+        {
+            var factura = await _service.GetByIdAsync(id);
+
+            if (factura == null)
+                return NotFound(new { message = $"No existe la factura con ID {id}" });
+
+            // Validar que la persona exista
+            var persona = await _personaService.GetByIdAsync(dto.PersonaId);
+            if (persona == null)
+                return BadRequest(new { message = $"No existe la persona con ID {dto.PersonaId}" });
+
+            // Actualizar campos
+            factura.PersonaId = dto.PersonaId;
+            factura.Monto = dto.Monto;
+            factura.Concepto = dto.Concepto;
+
+            await _service.UpdateAsync(factura);
+
+            return Ok(new
+            {
+                message = "Factura actualizada correctamente",
+                factura = new FacturaResponseDto
+                {
+                    Id = factura.Id,
+                    PersonaId = factura.PersonaId,
+                    Monto = factura.Monto,
+                    Fecha = factura.Fecha,
+                    Concepto = factura.Concepto
+                }
+            });
+        }
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Delete(int id)
+        {
+            var factura = await _service.GetByIdAsync(id);
+
+            if (factura == null)
+                return NotFound(new { message = $"No existe la factura con ID {id}" });
+
+            await _service.DeleteAsync(factura);
+
+            return Ok(new { message = "Factura eliminada correctamente" });
+        }
+
     }
 }

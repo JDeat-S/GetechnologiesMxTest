@@ -30,5 +30,17 @@ namespace Get.Directorio.Infrastructure.Repositories
         {
             return await _ctx.Facturas.FirstOrDefaultAsync(f => f.Id == id);
         }
+        public async Task UpdateAsync(Factura factura)
+        {
+            _ctx.Facturas.Update(factura);
+            await _ctx.SaveChangesAsync();
+        }
+
+        public async Task DeleteAsync(Factura factura)
+        {
+            _ctx.Facturas.Remove(factura);
+            await _ctx.SaveChangesAsync();
+        }
+
     }
 }
